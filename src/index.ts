@@ -10,16 +10,18 @@ const instervalo$ = new Observable<number>( subs => {
     const intervalID = setInterval( 
         () => subs.next( Math.random() ), 3000
     );
-    return () => clearInterval (intervalID);
+    return () =>{
+        clearInterval (intervalID);
+        console.log('Intervalo destruido');
+    };
 });
-
 /* 
     1- Casteo Multiple
     2- Tambien es un observer
     3- Next, error y complete
 */
 const subjects$ = new Subject();
-instervalo$.subscribe( subjects$ );
+const subcripcion = instervalo$.subscribe( subjects$ );
 
 
 /* 
@@ -32,3 +34,8 @@ const sub1 = subjects$.subscribe(rnd => console.log('subs1', rnd));
 const sub2 = subjects$.subscribe(rnd => console.log('subs2', rnd));
 const sub3 = subjects$.subscribe(rnd => console.log('subs3', rnd)); 
 
+setTimeout( () => {
+    subjects$.next(10);
+    subjects$.complete();
+    subcripcion.unsubscribe();
+},3500)
