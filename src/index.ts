@@ -1,4 +1,4 @@
-import { Observable, Observer, Subscriber } from 'rxjs';
+import { Observable, Observer, Subject, Subscriber } from 'rxjs';
 
 const observer: Observer<any> = {
     next:  valor => console.log('next: ', valor),
@@ -6,35 +6,29 @@ const observer: Observer<any> = {
     complete: () => console.info('completado')
 };
 
-const intervalos$ = new Observable<number>( sub => {
-    let count = 0 ;
-
- const interval = setInterval ( () => {
-                        count++;
-                        sub.next( count );
-                        console.log( count );
-                    },1000);
-
-    setTimeout(() =>{
-        sub.complete()
-    }, 2500);
-                
-    return () => {
-        clearInterval(interval);
-        console.log('Intervalo destruido');
-    }
+const instervalo$ = new Observable<number>( subs => {
+    const intervalID = setInterval( 
+        () => subs.next( Math.random() ), 3000
+    );
+    return () => clearInterval (intervalID);
 });
 
-/* const subs = intervalos$.subscribe( num => console.log('Num:', num)); */
-const subs1 = intervalos$.subscribe( observer );
-const subs2 = intervalos$.subscribe( observer );
-const subs3 = intervalos$.subscribe( observer );
+/* 
+    1- Casteo Multiple
+    2- Tambien es un observer
+    3- Next, error y complete
+*/
+const subjects$ = new Subject();
+instervalo$.subscribe( subjects$ );
 
-subs1.add( subs2 )
-     .add( subs3 );
 
-setTimeout(() => {
-    subs1.unsubscribe()
+/* 
+const sub1 = instervalo$.subscribe(rnd => console.log('subs1', rnd));
+const sub2 = instervalo$.subscribe(rnd => console.log('subs2', rnd));
+const sub3 = instervalo$.subscribe(rnd => console.log('subs3', rnd)); 
+*/
 
-    console.log('Completado TimeOut');
-}, 6000);
+const sub1 = subjects$.subscribe(rnd => console.log('subs1', rnd));
+const sub2 = subjects$.subscribe(rnd => console.log('subs2', rnd));
+const sub3 = subjects$.subscribe(rnd => console.log('subs3', rnd)); 
+
